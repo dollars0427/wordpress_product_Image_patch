@@ -27,7 +27,7 @@ const wp = new WPAPI({
 
 async function getCsvRecord(inputFile){
   return new Promise((resolve, reject) => {
-    const fileContent = fs.readFileSync(__dirname+ `/${inputFile}`);
+    const fileContent = fs.readFileSync(`${inputFile}`);
     parse(fileContent, {columns: true}, function (err, records) {
       if(err){
         reject(err);
