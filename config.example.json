@@ -1,0 +1,6 @@
+{
+  "endpoint": "https://example.com/wp-json",
+  "token": "Your JWT Authentication Token",
+  "image_field": "Your image field name in CSV",
+  "product_code_field": "Your product field name in CSV"
+}
