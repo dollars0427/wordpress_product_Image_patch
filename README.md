@@ -1,4 +1,4 @@
-# wordpress_product_image_patch
+# Wordpress Product Image Patch
 A simple script for patch upload wordpress woocommerce product's images.
 It will upload all of the images in "images" folder, then rewrite the csv which contains the information of products.
 
@@ -56,8 +56,7 @@ mkdir productcode
 Example:
 ![Image of Example](https://i.ibb.co/Ltg0Y9x/2021-01-02-20-34-35.png)
 
-Useage
----
+
 Usage
 ---
 1.Run upload.js with this command: 
