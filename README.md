@@ -60,4 +60,5 @@ Example:
 Usage
 ---
 1.Run upload.js with this command: 
-`$node upload.js [Path of input csv file] [Path of output csv file]`
+
+`node upload.js [Path of input csv file] [Path of output csv file]`
