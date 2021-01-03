@@ -6,3 +6,4 @@ node_modules
 *.bmp
 *.csv
 credentials
+config.s3.json
