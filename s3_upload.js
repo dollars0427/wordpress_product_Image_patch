@@ -19,7 +19,9 @@ const outputFile = process.argv[3];
 const configFile = fs.readFileSync('config.s3.json');
 const config = JSON.parse(configFile);
 
-const s3 = new AWS.S3();
+const s3 = new AWS.S3({
+  region: 'ap-east-1',
+});
 
 async function getCsvRecord(inputFile){
   return new Promise((resolve, reject) => {
@@ -55,6 +57,7 @@ function uploadImage(imagePath, imageName){
     s3.upload(params, function(err, data) {
       if(err){
         reject(err);
+        return;
       }
       console.log(`File uploaded successfully.`);
       resolve(data.Location);
@@ -66,7 +69,7 @@ async function startScript(){
   const products = await getCsvRecord(inputFile);
   const productsKey = getCsvHeader(products[0]);
   const csvWriter = createCsvWriter({
-      path: __dirname+ `/${outputFile}`,
+      path: outputFile,
       header: productsKey,
   });
   const imagesFolders = getDirectories(__dirname + '/images');
@@ -91,7 +94,7 @@ async function startScript(){
         const imageURL = await uploadImage(imagePath, image);
         imageList.push(imageURL);
       }catch(e){
-        console.log(image);
+        console.log(e);
       }
     }
     imageList = imageList.toString();

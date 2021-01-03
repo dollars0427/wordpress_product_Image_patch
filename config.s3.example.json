@@ -1,3 +1,5 @@
 {
-  "bucket": "Your aws bucket"
+  "bucket": "Your aws bucket",
+  "image_field": "Your image field name in CSV",
+  "product_code_field": "Your product field name in CSV"
 }

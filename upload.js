@@ -70,7 +70,7 @@ async function startScript(){
   const products = await getCsvRecord(inputFile);
   const productsKey = getCsvHeader(products[0]);
   const csvWriter = createCsvWriter({
-      path: __dirname+ `/${outputFile}`,
+      path: outputFile,
       header: productsKey,
   });
   const imagesFolders = getDirectories(__dirname + '/images');
