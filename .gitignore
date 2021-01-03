@@ -1,8 +1,8 @@
 config.json
-config.s3.json
 node_modules
 *.jpg
 *.png
 *.jpeg
 *.bmp
 *.csv
+credentials
