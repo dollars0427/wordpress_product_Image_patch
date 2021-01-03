@@ -74,12 +74,13 @@ async function startScript(){
       header: productsKey,
   });
   const imagesFolders = getDirectories(__dirname + '/images');
+
   products.forEach(async function(product, index){
     const productCodeKey = config['product_code_field'];
     const productCode = product[productCodeKey];
 
     const productFolder = imagesFolders.find(function(folder) {
-      const regax = new RegExp(`(${productCode}.+)`, 'g');
+      const regax = new RegExp(`(${productCode}.+|${productCode})`, 'g');
       if(regax.exec(folder)){
         return folder;
       }
@@ -90,8 +91,12 @@ async function startScript(){
     for(let i = 0; i < images.length; i++){
       const image = images[i];
       const imagePath = `${folderPath}/${image}`;
-      const imageURL = await uploadImage(imagePath);
-      imageList.push(imageURL);
+      try{
+        const imageURL = await uploadImage(imagePath);
+        imageList.push(imageURL);
+      }catch(e){
+        console.log(image);
+      }
     }
     imageList = imageList.toString();
     const imageFieldKey = config['image_field'];

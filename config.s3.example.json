@@ -1,0 +1,5 @@
+{
+  "aws_key": "Your aws access key",
+  "aws_secret": "Your aws secret",
+  "bucket": "Your aws bucket",
+}
