@@ -1,13 +1,11 @@
 const fs = require('fs');
 const { readdirSync } = require('fs');
-const AWS = require('aws-sdk');
 const parse = require('csv-parse');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
+const WPAPI = require('wpapi');
 
-const getDirectories = source =>
-readdirSync(source, { withFileTypes: true })
-.filter(dirent => dirent.isDirectory())
-.map(dirent => dirent.name);
+const configFile = fs.readFileSync('config.json');
+const config = JSON.parse(configFile);
 
 const getFiles = source =>
 readdirSync(source, { withFileTypes: true })
@@ -16,11 +14,10 @@ readdirSync(source, { withFileTypes: true })
 const inputFile = process.argv[2];
 const outputFile = process.argv[3];
 
-const configFile = fs.readFileSync('config.s3.json');
-const config = JSON.parse(configFile);
+const token = config['token'];
 
-const s3 = new AWS.S3({
-  'region': 'ap-east-1',
+const wp = new WPAPI({
+    endpoint: config['endpoint'],
 });
 
 async function getCsvRecord(inputFile){
@@ -47,21 +44,19 @@ function getCsvHeader(item){
   return headers;
 }
 
-function uploadImage(folderName, imagePath, imageName){
+function uploadImage(imagePath){
   return new Promise((resolve, reject) => {
-    const params = {
-      Bucket: config['bucket'],
-      Key: `${folderName}/${imageName}`,
-      Body: fs.readFileSync(imagePath),
-      ACL:'public-read',
-    };
-    s3.upload(params, function(err, data) {
+    wp.media()
+    .setHeaders({
+      Authorization: `Bearer ${token}`,
+    })
+    .file(imagePath)
+    .create({}, function(err, res){
       if(err){
         reject(err);
         return;
       }
-      console.log(`File uploaded successfully.`);
-      resolve(data.Location);
+      resolve(res['source_url']);
     });
   });
 }
@@ -73,35 +68,32 @@ async function startScript(){
       path: outputFile,
       header: productsKey,
   });
-  const imagesFolders = getDirectories(__dirname + '/images');
 
   products.forEach(async function(product, index){
     const productCodeKey = config['product_code_field'];
     const productCode = product[productCodeKey];
 
-    const productFolder = imagesFolders.find(function(folder) {
+    const folderPath = `${__dirname}/images`;
+    const images = getFiles(folderPath);
+
+    const productImage = images.find(function(image) {
       const regax = new RegExp(`(${productCode}.+|${productCode})`, 'g');
-      if(regax.exec(folder)){
-        return folder;
+      if(regax.exec(image)){
+        return image;
       }
     });
-    const folderPath = `${__dirname}/images/${productFolder}`;
-    const images = getFiles(folderPath);
-    let imageList = [];
-    for(let i = 0; i < images.length; i++){
-      const image = images[i];
-      const imagePath = `${folderPath}/${image}`;
+
+    if(productImage){
+      const imagePath = `${folderPath}/${productImage}`;
       try{
-        const imageURL = await uploadImage(productFolder, imagePath, image);
-        imageList.push(imageURL);
+        const imageURL = await uploadImage(imagePath);
+        const imageFieldKey = config['image_field'];
+        product[imageFieldKey] = imageURL;
+        await csvWriter.writeRecords([product]);
       }catch(e){
         console.log(e);
       }
     }
-    imageList = imageList.toString();
-    const imageFieldKey = config['image_field'];
-    product[imageFieldKey] = imageList;
-    await csvWriter.writeRecords([product]);
   });
 }
 
