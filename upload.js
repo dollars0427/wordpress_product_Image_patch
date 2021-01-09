@@ -77,7 +77,10 @@ async function startScript(){
 
   products.forEach(async function(product, index){
     const productCodeKey = config['product_code_field'];
-    const productCode = product[productCodeKey];
+    let productCode = product[productCodeKey];
+
+    //Rewrite product code, replace special chara
+    productCode = productCode.replace('+', '\\+');
 
     const productFolder = imagesFolders.find(function(folder) {
       const regax = new RegExp(`(${productCode}.+|${productCode})`, 'g');
@@ -85,23 +88,27 @@ async function startScript(){
         return folder;
       }
     });
-    const folderPath = `${__dirname}/images/${productFolder}`;
-    const images = getFiles(folderPath);
-    let imageList = [];
-    for(let i = 0; i < images.length; i++){
-      const image = images[i];
-      const imagePath = `${folderPath}/${image}`;
-      try{
-        const imageURL = await uploadImage(imagePath);
-        imageList.push(imageURL);
-      }catch(e){
-        console.log(image);
+
+    if(productFolder){
+      const folderPath = `${__dirname}/images/${productFolder}`;
+      const images = getFiles(folderPath);
+      let imageList = [];
+      for(let i = 0; i < images.length; i++){
+        const image = images[i];
+        const imagePath = `${folderPath}/${image}`;
+        try{
+          const imageURL = await uploadImage(imagePath);
+          imageList.push(imageURL);
+        }catch(e){
+          console.log(e);
+        }
       }
+      imageList = imageList.toString();
+      const imageFieldKey = config['image_field'];
+      product[imageFieldKey] = imageList;
+      await csvWriter.writeRecords([product]);
     }
-    imageList = imageList.toString();
-    const imageFieldKey = config['image_field'];
-    product[imageFieldKey] = imageList;
-    await csvWriter.writeRecords([product]);
+    
   });
 }
 
