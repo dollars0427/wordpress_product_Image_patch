@@ -106,8 +106,9 @@ async function startScript(){
       imageList = imageList.toString();
       const imageFieldKey = config['image_field'];
       product[imageFieldKey] = imageList;
-      await csvWriter.writeRecords([product]);
     }
+
+    await csvWriter.writeRecords([product]);
     
   });
 }
