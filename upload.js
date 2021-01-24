@@ -89,6 +89,11 @@ async function startScript(){
       }
     });
 
+    if(!productFolder){
+      console.log(productCode);
+      console.log(imagesFolders);
+    }
+
     if(productFolder){
       const folderPath = `${__dirname}/images/${productFolder}`;
       const images = getFiles(folderPath);
@@ -106,10 +111,9 @@ async function startScript(){
       imageList = imageList.toString();
       const imageFieldKey = config['image_field'];
       product[imageFieldKey] = imageList;
+      await csvWriter.writeRecords([product]);
     }
 
-    await csvWriter.writeRecords([product]);
-    
   });
 }
 
